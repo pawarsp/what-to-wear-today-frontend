@@ -6,7 +6,7 @@ app = FastAPI()
 # Allow Streamlit frontend to call this API
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # for local dev; restrict later
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
