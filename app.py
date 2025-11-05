@@ -101,34 +101,18 @@ if st.button("✨ Get My Outfit"):
         with st.spinner("Fetching your personalized outfit..."):
             try:
                 city_country = city_country[city.lower()]
+                city_lower = city.lower()
 
                 all_response = requests.get(WWTT_API, params={'city': city_country})
 
-                #  Weather API call
-                weather_response = requests.get(WEATHER_API, params={"city": city_lower})
-                if weather_response.status_code != 200:
-                    st.error("Could not fetch weather data. Please try again.")
-                else:
-                    weather_data = weather_response.json()
-                    st.session_state.weather_data = weather_data
-                    st.session_state.temperature = weather_data.get("temperature", "N/A")
-                    st.session_state.weather_label = weather_data.get("label", "Unknown")
+                all_response = {"temperature": [], 'rain':[],
+                "recommended_clothes":{"top":"item"}}
+                if all_response.status_code == 200:
+                    data = all_response.json()
+                    st.session_state.temperature = data.get("temperature", [])
+                    st.session_state.weather_label = data.get("weather_type", "Unknown")
+                    st.session_state.recommendations = data.get("recommendations", [])
 
-                # Recommendation API call
-                rec_response = requests.get(RECOMMEND_API, params={"city": city_lower})
-                if rec_response.status_code == 200:
-                    st.session_state.recommendations = rec_response.json().get("recommendations", [])
-                else:
-                    st.session_state.recommendations = []
-
-                # 12-Hour Forecast API call
-                hourly_response = requests.get(HOURLY_API, params={"city": city_lower})
-                if hourly_response.status_code == 200:
-                    st.session_state.hourly_data = hourly_response.json()["hourly"]
-                else:
-                    st.session_state.hourly_data = []
-
-                # Coordinates
                 st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
 
             except Exception as e:
