@@ -105,8 +105,6 @@ if st.button("✨ Get My Outfit"):
 
                 all_response = requests.get(WWTT_API, params={'city': city_country})
 
-                all_response = {"temperature": [], 'rain':[],
-                "recommended_clothes":{"top":"item"}}
                 if all_response.status_code == 200:
                     data = all_response.json()
                     st.session_state.temperature = data.get("temperature", [])
