@@ -48,9 +48,14 @@ st.markdown(
 
 # API Endpoints
 BASE_URL = "https://docker-1034862203805.europe-west1.run.app"
-WEATHER_API = f"{BASE_URL}/weather"
-RECOMMEND_API = f"{BASE_URL}/recommend"
-HOURLY_API = f"{BASE_URL}/hourly"
+WWTT_API = f"{BASE_URL}/predict"
+
+city_country = {
+    "london": "London, UK",
+    "berlin": "Berlin, Germany",
+    "porto": "Porto, Portugal",
+    "marseille": "Marseille, France",
+}
 
 # city coordinates
 city_coords = {
@@ -95,7 +100,9 @@ if st.button("✨ Get My Outfit"):
     else:
         with st.spinner("Fetching your personalized outfit..."):
             try:
-                city_lower = city.lower()
+                city_country = city_country[city.lower()]
+
+                all_response = requests.get(WWTT_API, params={'city': city_country})
 
                 #  Weather API call
                 weather_response = requests.get(WEATHER_API, params={"city": city_lower})
