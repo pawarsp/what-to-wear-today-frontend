@@ -107,16 +107,18 @@ if st.button("✨ Get My Outfit"):
                 city_lower = city.lower()
 
                 all_response = requests.get(WWTT_API, params={'city': city_country})
-
+                
                 if all_response.status_code == 200:
                     data = all_response.json()
+                    print(data.keys())
                     st.session_state.temperature = data.get("temperature", [])
                     st.session_state.rain = data.get("rain", [])
                     st.session_state.humidity = data.get("humidity", [])
                     st.session_state.wind = data.get("wind", [])
                     st.session_state.recommendations = data.get("recommended_clothes", [])
                     st.session_state.time = data.get("time", [])
-
+                else:
+                    print(all_response.status_code)
 
                 st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
 
