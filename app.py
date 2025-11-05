@@ -52,8 +52,8 @@ BASE_URL = "https://docker-1034862203805.europe-west1.run.app"
 WWTT_API = f"{BASE_URL}/predict"
 
 city_country = {
-    "london": "London, UK",
     "berlin": "Berlin, Germany",
+    "london": "London, UK",
     "porto": "Porto, Portugal",
     "marseille": "Marseille, France",
 }
@@ -100,16 +100,13 @@ if st.button("✨ Get My Outfit"):
         st.warning("⚠️ Please select a city.")
     else:
         with st.spinner("Fetching your personalized outfit..."):
-            city_country = city_country[city.lower()]
-            city_lower = city.lower()
-            all_response = requests.get(WWTT_API, params={'city': city_lower})
-            print(all_response.status_code)
             try:
-
+                city_country = city_country[city.lower()]
+                city_lower = city.lower()
+                all_response = requests.get(WWTT_API, params={'city': city_lower})
 
                 if all_response.status_code == 200:
                     data = all_response.json()
-                    print(data.keys())
                     st.session_state.temperature = data.get("temperature", [])
                     st.session_state.temperature_min = data.get("temperature_min", [])
                     st.session_state.temperature_max = data.get("temperature_max", [])
@@ -118,8 +115,6 @@ if st.button("✨ Get My Outfit"):
                     st.session_state.wind = data.get("wind", [])
                     st.session_state.recommendations = data.get('recommended_clothes', {})
                     st.session_state.time = data.get("time", [])
-                else:
-                    print(all_response.status_code)
 
                 st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
 
@@ -234,7 +229,6 @@ if st.session_state.time:
 
     st.altair_chart(chart)
 
-print(st.session_state.recommendations)
 # Recommended Outfit Section
 if st.session_state.recommendations:
 
@@ -242,8 +236,6 @@ if st.session_state.recommendations:
 
     cols = st.columns(len(st.session_state.recommendations))
     for i, item in enumerate(st.session_state.recommendations):
-        print(type(st.session_state.recommendations))
-        #img_url = item.get("img_url", "")
         product_name = st.session_state.recommendations[item]
         category = item
         with cols[i]:
