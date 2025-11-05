@@ -116,66 +116,65 @@ if st.button("✨ Get My Outfit"):
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-# Weather cards
-if data:
-    temperature = st.session_state.temperature
-    weather_label = st.session_state.weather_label
-    coords = st.session_state.coords
 
-    st.markdown("---")
-    st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
+temperature = st.session_state.temperature
+weather_label = st.session_state.weather_label
+coords = st.session_state.coords
 
-    # Determine pin color
-    if temperature < 15:
-        pin_color = "blue"
-    elif temperature <= 20:
-        pin_color = "green"
-    else:
-        pin_color = "orange"
+st.markdown("---")
+st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
 
-    # Folium map
-    m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
-    folium.Marker(
-        location=[coords["lat"], coords["lon"]],
-        popup=f"{city.title()}: {temperature}°C, {weather_label}",
-        icon=folium.Icon(color=pin_color, icon="cloud")
-    ).add_to(m)
+# Determine pin color
+if temperature < 15:
+    pin_color = "blue"
+elif temperature <= 20:
+    pin_color = "green"
+else:
+    pin_color = "orange"
 
-    # Cards and Map columns
-    cols = st.columns([4, 3])
+# Folium map
+m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
+folium.Marker(
+    location=[coords["lat"], coords["lon"]],
+    popup=f"{city.title()}: {temperature}°C, {weather_label}",
+    icon=folium.Icon(color=pin_color, icon="cloud")
+).add_to(m)
 
-    with cols[0]:
-        # All cards in a row
-        st.markdown(
-            """
-            <div style="display:flex; gap:10px; flex-wrap:nowrap;">
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">🌡️</div>
-                    <div style="font-weight:bold; margin-top:10px;">{}°C</div>
-                    <div style="color:gray;font-size:9px;">Temperature</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">💨</div>
-                    <div style="font-weight:bold; margin-top:10px;">7 km/h</div>
-                    <div style="color:gray;font-size:9px;">Wind</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">💧</div>
-                    <div style="font-weight:bold; margin-top:10px;">75%</div>
-                    <div style="color:gray;font-size:9px;">Humidity</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">🌧️</div>
-                    <div style="font-weight:bold; margin-top:10px;">80%</div>
-                    <div style="color:gray;font-size:9px;">Precipitation</div>
-                </div>
+# Cards and Map columns
+cols = st.columns([4, 3])
+
+with cols[0]:
+    # All cards in a row
+    st.markdown(
+        """
+        <div style="display:flex; gap:10px; flex-wrap:nowrap;">
+            <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                <div style="font-size:24px;">🌡️</div>
+                <div style="font-weight:bold; margin-top:10px;">{}°C</div>
+                <div style="color:gray;font-size:9px;">Temperature</div>
             </div>
-            """.format(temperature),
-            unsafe_allow_html=True,
-        )
+            <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                <div style="font-size:24px;">💨</div>
+                <div style="font-weight:bold; margin-top:10px;">7 km/h</div>
+                <div style="color:gray;font-size:9px;">Wind</div>
+            </div>
+            <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                <div style="font-size:24px;">💧</div>
+                <div style="font-weight:bold; margin-top:10px;">75%</div>
+                <div style="color:gray;font-size:9px;">Humidity</div>
+            </div>
+            <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                <div style="font-size:24px;">🌧️</div>
+                <div style="font-weight:bold; margin-top:10px;">80%</div>
+                <div style="color:gray;font-size:9px;">Precipitation</div>
+            </div>
+        </div>
+        """.format(temperature),
+        unsafe_allow_html=True,
+    )
 
-    with cols[1]:
-        st_folium(m, width=300, height=150)
+with cols[1]:
+    st_folium(m, width=300, height=150)
 
 
 # 12-Hour Forecast with parameter selector
