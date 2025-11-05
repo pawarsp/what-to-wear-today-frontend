@@ -104,7 +104,7 @@ if st.button("✨ Get My Outfit"):
                 
                 city_lower = city.lower()
                 all_response = requests.get(WWTT_API, params={'city': city_lower})
-
+                print(all_response.status_code)
                 if all_response.status_code == 200:
                     data = all_response.json()
                     st.session_state.temperature = data.get("temperature", [])
@@ -121,7 +121,7 @@ if st.button("✨ Get My Outfit"):
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-print(data)
+print(data) 
 temperature = st.session_state.temperature
 temperature_min = st.session_state.temperature_min
 temperature_max = st.session_state.temperature_max
