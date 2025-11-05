@@ -100,8 +100,7 @@ if st.button("✨ Get My Outfit"):
         st.warning("⚠️ Please select a city.")
     else:
         with st.spinner("Fetching your personalized outfit..."):
-            try:
-                
+            try:               
                 city_lower = city.lower()
                 all_response = requests.get(WWTT_API, params={'city': city_lower})
                 print(all_response.status_code)
@@ -121,7 +120,6 @@ if st.button("✨ Get My Outfit"):
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-print(data) 
 temperature = st.session_state.temperature
 temperature_min = st.session_state.temperature_min
 temperature_max = st.session_state.temperature_max
