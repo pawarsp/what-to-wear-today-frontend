@@ -68,9 +68,11 @@ city_coords = {
 
 
 # Session state initialization
-for key in ["weather_data", "recommendations", "coords", "temperature", "weather_label", "hourly_data"]:
-    if key not in st.session_state:
-        st.session_state[key] = None if key != "recommendations" and key != "hourly_data" else []
+# for key in ['temperature', 'rain', 'humidity', 'wind', 'temperature_min', 'temperature_max', 'recommended_clothes']:
+#     if key not in st.session_state:
+#         if key == 'recommended_clothes':
+
+#         st.session_state[key] = None if key != "recommendations" and key != "hourly_data" else []
 
 # --- City & Occasion Input ---
 with st.container():
