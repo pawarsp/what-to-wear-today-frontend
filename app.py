@@ -47,7 +47,7 @@ st.markdown(
 )
 
 # API Endpoints
-BASE_URL = "http://127.0.0.1:8000"
+BASE_URL = "https://docker-1034862203805.europe-west1.run.app"
 WEATHER_API = f"{BASE_URL}/weather"
 RECOMMEND_API = f"{BASE_URL}/recommend"
 HOURLY_API = f"{BASE_URL}/hourly"
