@@ -117,7 +117,7 @@ if st.button("✨ Get My Outfit"):
                 st.error(f"🚨 Something went wrong: {e}")
 
 # Weather cards
-if st.session_state.weather_data:
+if all_response.status_code == 200:
     temperature = st.session_state.temperature
     weather_label = st.session_state.weather_label
     coords = st.session_state.coords
