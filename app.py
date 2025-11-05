@@ -65,6 +65,8 @@ city_coords = {
     "marseille": {"lat": 43.2965, "lon": 5.3698},
 }
 
+
+
 # Session state initialization
 for key in ["weather_data", "recommendations", "coords", "temperature", "weather_label", "hourly_data"]:
     if key not in st.session_state:
@@ -79,8 +81,7 @@ with st.container():
     city = st.selectbox(
         "",
         options=[c.title() for c in city_coords.keys()],
-        index=None,
-        placeholder="Choose a city..."
+
     )
 
     st.markdown(
@@ -105,89 +106,90 @@ if st.button("✨ Get My Outfit"):
 
                 all_response = requests.get(WWTT_API, params={'city': city_country})
 
-                all_response = {"temperature": [], 'rain':[],
-                "recommended_clothes":{"top":"item"}}
                 if all_response.status_code == 200:
                     data = all_response.json()
                     st.session_state.temperature = data.get("temperature", [])
-                    st.session_state.weather_label = data.get("weather_type", "Unknown")
-                    st.session_state.recommendations = data.get("recommendations", [])
+                    st.session_state.rain = data.get("rain", [])
+                    st.session_state.humidity = data.get("humidity", [])
+                    st.session_state.wind = data.get("wind", [])
+                    st.session_state.recommendations = data.get("recommended_clothes", [])
+                    st.session_state.time = data.get("time", [])
+
 
                 st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
 
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-# Weather cards
-if st.session_state.weather_data:
-    temperature = st.session_state.temperature
-    weather_label = st.session_state.weather_label
-    coords = st.session_state.coords
 
-    st.markdown("---")
-    st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
+temperature = st.session_state.temperature
+wind = st.session_state.wind
+rain = st.session_state.rain
+humidity = st.session_state.humidity
+coords = st.session_state.coords
+hourly = st.session_state.time
 
-    # Determine pin color
-    if temperature < 15:
-        pin_color = "blue"
-    elif temperature <= 20:
-        pin_color = "green"
-    else:
-        pin_color = "orange"
+st.markdown("---")
+st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
 
-    # Folium map
-    m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
-    folium.Marker(
-        location=[coords["lat"], coords["lon"]],
-        popup=f"{city.title()}: {temperature}°C, {weather_label}",
-        icon=folium.Icon(color=pin_color, icon="cloud")
-    ).add_to(m)
+# Determine pin color
+if temperature < 15:
+    pin_color = "blue"
+elif temperature <= 20:
+    pin_color = "green"
+else:
+    pin_color = "orange"
 
-    # Cards and Map columns
-    cols = st.columns([4, 3])
+# Folium map
+m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
+folium.Marker(
+    location=[coords["lat"], coords["lon"]],
+    popup=f"{city.title()}: {temperature}°C",
+    icon=folium.Icon(color=pin_color, icon="cloud")
+).add_to(m)
 
-    with cols[0]:
-        # All cards in a row
-        st.markdown(
-            """
-            <div style="display:flex; gap:10px; flex-wrap:nowrap;">
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">🌡️</div>
-                    <div style="font-weight:bold; margin-top:10px;">{}°C</div>
-                    <div style="color:gray;font-size:9px;">Temperature</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">💨</div>
-                    <div style="font-weight:bold; margin-top:10px;">7 km/h</div>
-                    <div style="color:gray;font-size:9px;">Wind</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">💧</div>
-                    <div style="font-weight:bold; margin-top:10px;">75%</div>
-                    <div style="color:gray;font-size:9px;">Humidity</div>
-                </div>
-                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
-                    <div style="font-size:24px;">🌧️</div>
-                    <div style="font-weight:bold; margin-top:10px;">80%</div>
-                    <div style="color:gray;font-size:9px;">Precipitation</div>
-                </div>
-            </div>
-            """.format(temperature),
-            unsafe_allow_html=True,
-        )
+# Cards and Map columns
+cols = st.columns([4, 3])
 
-    with cols[1]:
-        st_folium(m, width=300, height=150)
+with cols[0]:
+    # All cards in a row
+    st.markdown(f"""
+    <div style="display:flex; gap:10px; flex-wrap:nowrap;">
+        <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+            <div style="font-size:24px;">🌡️</div>
+            <div style="font-weight:bold; margin-top:10px;">{temperature}°C</div>
+            <div style="color:gray;font-size:9px;">Temperature</div>
+        </div>
+        <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+            <div style="font-size:24px;">💨</div>
+            <div style="font-weight:bold; margin-top:10px;">{wind} km/h</div>
+            <div style="color:gray;font-size:9px;">Wind</div>
+        </div>
+        <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+            <div style="font-size:24px;">💧</div>
+            <div style="font-weight:bold; margin-top:10px;">{humidity}%</div>
+            <div style="color:gray;font-size:9px;">Humidity</div>
+        </div>
+        <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+            <div style="font-size:24px;">🌧️</div>
+            <div style="font-weight:bold; margin-top:10px;">{rain}%</div>
+            <div style="color:gray;font-size:9px;">Rain</div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+with cols[1]:
+    st_folium(m, width=300, height=150)
 
 
 # 12-Hour Forecast with parameter selector
-if st.session_state.hourly_data:
-    df = pd.DataFrame(st.session_state.hourly_data)
+if st.session_state.time:
+    df = pd.DataFrame(st.session_state.time)
 
     params = {
         "temperature": "°C",
         "humidity": "%",
-        "precipitation": "%",
+        "rain": "%",
         "wind": "km/h"
     }
 
@@ -234,6 +236,9 @@ if st.session_state.recommendations:
 
     cols = st.columns(len(st.session_state.recommendations))
     for i, item in enumerate(st.session_state.recommendations):
+        #img_url = item.get("img_url", "")
+        product_name = st.session_state.recommendations[item]
+        category = item
         with cols[i]:
             st.markdown(f"""
                 <div style="
@@ -243,17 +248,15 @@ if st.session_state.recommendations:
                     text-align:center;
                     box-shadow:0 2px 6px rgba(0,0,0,0.1);
                     margin-bottom:10px;">
-                    <img src="https://placehold.co/100x100?text={item}"
-                         alt="{item}" style="border-radius:8px;">
-                    <p style="font-size:16px; margin-top:10px;"><b>{item}</b></p>
-                    <p style="font-size:12px; color:gray; margin-top:5px;">Bottoms</p>
+                    <p style="font-size:16px; margin-top:10px;"><b>{product_name}</b></p>
+                    <p style="font-size:12px; color:gray; margin-top:5px;">{category}</p>
                 </div>
             """, unsafe_allow_html=True)
 
-    if st.button("🔄 Refresh Recommendations"):
+   # if st.button("🔄 Refresh Recommendations"):
         with st.spinner("Refreshing outfit ideas..."):
             try:
-                rec_response = requests.get(RECOMMEND_API, params={"city": city.lower()})
+                rec_response = requests.get(BASE_URL, params={"city": city.lower()})
                 if rec_response.status_code == 200:
                     refreshed = rec_response.json().get("recommendations", [])
                     st.session_state.recommendations = refreshed
@@ -263,3 +266,5 @@ if st.session_state.recommendations:
                     st.error("Could not refresh recommendations. Please try again.")
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
+
+#<img src="{img_url}" alt="{product_name}" style="border-radius:8px; width:100px; height:100px;">
