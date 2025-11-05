@@ -4,6 +4,7 @@ import folium
 from streamlit_folium import st_folium
 import pandas as pd
 import altair as alt
+import numpy as np
 
 st.set_page_config(page_title="What to Wear Today 👕", page_icon="🧥", layout="centered")
 
@@ -66,13 +67,9 @@ city_coords = {
 }
 
 
-
-# Session state initialization
-# for key in ['temperature', 'rain', 'humidity', 'wind', 'temperature_min', 'temperature_max', 'recommended_clothes']:
-#     if key not in st.session_state:
-#         if key == 'recommended_clothes':
-
-#         st.session_state[key] = None if key != "recommendations" and key != "hourly_data" else []
+for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_min', 'temperature_max', 'recommended_clothes']:
+    if key not in st.session_state:
+            st.session_state[key] = None #if key != "recommendations" and key != "hourly_data" else []
 
 # --- City & Occasion Input ---
 with st.container():
@@ -83,7 +80,7 @@ with st.container():
     city = st.selectbox(
         "",
         options=[c.title() for c in city_coords.keys()],
-
+        label_visibility="collapsed"
     )
 
     st.markdown(
@@ -91,9 +88,10 @@ with st.container():
         unsafe_allow_html=True
     )
     user_context = st.text_area(
-        "",
+        "What's your plan for today?",
         placeholder="e.g. I’ve got a party tonight but don’t know how to dress for the weather.",
-        height=100
+        height=100,
+        label_visibility="collapsed"
     )
 
 # Button: fetch weather and recommendations
@@ -102,20 +100,23 @@ if st.button("✨ Get My Outfit"):
         st.warning("⚠️ Please select a city.")
     else:
         with st.spinner("Fetching your personalized outfit..."):
+            city_country = city_country[city.lower()]
+            city_lower = city.lower()
+            all_response = requests.get(WWTT_API, params={'city': city_lower})
+            print(all_response.status_code)
             try:
-                city_country = city_country[city.lower()]
-                city_lower = city.lower()
 
-                all_response = requests.get(WWTT_API, params={'city': city_country})
-                
+
                 if all_response.status_code == 200:
                     data = all_response.json()
                     print(data.keys())
                     st.session_state.temperature = data.get("temperature", [])
+                    st.session_state.temperature_min = data.get("temperature_min", [])
+                    st.session_state.temperature_max = data.get("temperature_max", [])
                     st.session_state.rain = data.get("rain", [])
                     st.session_state.humidity = data.get("humidity", [])
                     st.session_state.wind = data.get("wind", [])
-                    st.session_state.recommendations = data.get("recommended_clothes", [])
+                    st.session_state.recommendations = data.get('recommended_clothes', {})
                     st.session_state.time = data.get("time", [])
                 else:
                     print(all_response.status_code)
@@ -127,19 +128,20 @@ if st.button("✨ Get My Outfit"):
 
 
 temperature = st.session_state.temperature
+temperature_min = st.session_state.temperature_min
+temperature_max = st.session_state.temperature_max
 wind = st.session_state.wind
 rain = st.session_state.rain
 humidity = st.session_state.humidity
 coords = st.session_state.coords
-hourly = st.session_state.time
 
 st.markdown("---")
 st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
 
 # Determine pin color
-if temperature < 15:
+if temperature_max < 15:
     pin_color = "blue"
-elif temperature <= 20:
+elif temperature_max <= 20:
     pin_color = "green"
 else:
     pin_color = "orange"
@@ -161,22 +163,22 @@ with cols[0]:
     <div style="display:flex; gap:10px; flex-wrap:nowrap;">
         <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
             <div style="font-size:24px;">🌡️</div>
-            <div style="font-weight:bold; margin-top:10px;">{temperature}°C</div>
+            <div style="font-weight:bold; margin-top:10px;">{np.mean(temperature):.2f}°C</div>
             <div style="color:gray;font-size:9px;">Temperature</div>
         </div>
         <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
             <div style="font-size:24px;">💨</div>
-            <div style="font-weight:bold; margin-top:10px;">{wind} km/h</div>
+            <div style="font-weight:bold; margin-top:10px;">{np.mean(wind):.2f} km/h</div>
             <div style="color:gray;font-size:9px;">Wind</div>
         </div>
         <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
             <div style="font-size:24px;">💧</div>
-            <div style="font-weight:bold; margin-top:10px;">{humidity}%</div>
+            <div style="font-weight:bold; margin-top:10px;">{np.mean(humidity):.2f}%</div>
             <div style="color:gray;font-size:9px;">Humidity</div>
         </div>
         <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
             <div style="font-size:24px;">🌧️</div>
-            <div style="font-weight:bold; margin-top:10px;">{rain}%</div>
+            <div style="font-weight:bold; margin-top:10px;">{np.mean(rain):.2f}%</div>
             <div style="color:gray;font-size:9px;">Rain</div>
         </div>
     </div>
@@ -232,7 +234,7 @@ if st.session_state.time:
 
     st.altair_chart(chart)
 
-
+print(st.session_state.recommendations)
 # Recommended Outfit Section
 if st.session_state.recommendations:
 
@@ -240,6 +242,7 @@ if st.session_state.recommendations:
 
     cols = st.columns(len(st.session_state.recommendations))
     for i, item in enumerate(st.session_state.recommendations):
+        print(type(st.session_state.recommendations))
         #img_url = item.get("img_url", "")
         product_name = st.session_state.recommendations[item]
         category = item
@@ -258,17 +261,17 @@ if st.session_state.recommendations:
             """, unsafe_allow_html=True)
 
    # if st.button("🔄 Refresh Recommendations"):
-        with st.spinner("Refreshing outfit ideas..."):
-            try:
-                rec_response = requests.get(BASE_URL, params={"city": city.lower()})
-                if rec_response.status_code == 200:
-                    refreshed = rec_response.json().get("recommendations", [])
-                    st.session_state.recommendations = refreshed
-                    st.success("✅ Recommendations refreshed!")
-                    st.experimental_rerun()
-                else:
-                    st.error("Could not refresh recommendations. Please try again.")
-            except Exception as e:
-                st.error(f"🚨 Something went wrong: {e}")
+        # with st.spinner("Refreshing outfit ideas..."):
+        #     try:
+        #         rec_response = requests.get(BASE_URL, params={"city": city.lower()})
+        #         if rec_response.status_code == 200:
+        #             refreshed = rec_response.json().get("recommendations", [])
+        #             st.session_state.recommendations = refreshed
+        #             st.success("✅ Recommendations refreshed!")
+        #             st.experimental_rerun()
+        #         else:
+        #             st.error("Could not refresh recommendations. Please try again.")
+        #     except Exception as e:
+        #         st.error(f"🚨 Something went wrong: {e}")
 
 #<img src="{img_url}" alt="{product_name}" style="border-radius:8px; width:100px; height:100px;">
