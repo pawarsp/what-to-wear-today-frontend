@@ -53,7 +53,7 @@ WWTT_API = f"{BASE_URL}/predict"
 
 city_country = {
     "berlin": "Berlin, Germany",
-    "london": "London, UK",
+    "london": "London, United Kingdom",
     "porto": "Porto, Portugal",
     "marseille": "Marseille, France",
 }
@@ -101,7 +101,7 @@ if st.button("✨ Get My Outfit"):
     else:
         with st.spinner("Fetching your personalized outfit..."):
             try:
-                city_country = city_country[city.lower()]
+                
                 city_lower = city.lower()
                 all_response = requests.get(WWTT_API, params={'city': city_lower})
 
@@ -121,7 +121,7 @@ if st.button("✨ Get My Outfit"):
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-
+print(data)
 temperature = st.session_state.temperature
 temperature_min = st.session_state.temperature_min
 temperature_max = st.session_state.temperature_max
