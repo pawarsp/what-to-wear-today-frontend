@@ -2,10 +2,12 @@ import streamlit as st
 import requests
 import folium
 from streamlit_folium import st_folium
+import pandas as pd
+import altair as alt
 
 st.set_page_config(page_title="What to Wear Today 👕", page_icon="🧥", layout="centered")
 
-# --- CSS Styling ---
+#  CSS
 st.markdown(
     """
     <style>
@@ -33,7 +35,7 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- Main Title ---
+# Main Title
 st.markdown(
     """
     <h1 style="text-align:center;">👕 What to Wear Today</h1>
@@ -44,51 +46,59 @@ st.markdown(
     unsafe_allow_html=True
 )
 
-# --- API Endpoints ---
+# API Endpoints
 BASE_URL = "http://127.0.0.1:8000"
 WEATHER_API = f"{BASE_URL}/weather"
 RECOMMEND_API = f"{BASE_URL}/recommend"
+HOURLY_API = f"{BASE_URL}/hourly"
 
-# --- Supported city coordinates ---
+# city coordinates
 city_coords = {
     "london": {"lat": 51.5074, "lon": -0.1278},
-    "athens": {"lat": 37.9838, "lon": 23.7275},
-    "osaka": {"lat": 34.6937, "lon": 135.5023},
+    "berlin": {"lat": 52.5200, "lon": 13.4050},
+    "porto": {"lat": 41.1579, "lon": -8.6291},
+    "marseille": {"lat": 43.2965, "lon": 5.3698},
 }
 
-# --- Session state initialization ---
-if "weather_data" not in st.session_state:
-    st.session_state.weather_data = None
-if "recommendations" not in st.session_state:
-    st.session_state.recommendations = []
-if "coords" not in st.session_state:
-    st.session_state.coords = None
-if "temperature" not in st.session_state:
-    st.session_state.temperature = None
-if "weather_label" not in st.session_state:
-    st.session_state.weather_label = None
+# Session state initialization
+for key in ["weather_data", "recommendations", "coords", "temperature", "weather_label", "hourly_data"]:
+    if key not in st.session_state:
+        st.session_state[key] = None if key != "recommendations" and key != "hourly_data" else []
 
 # --- City & Occasion Input ---
 with st.container():
-    st.markdown("##### Enter Your City")
-    city = st.text_input("", placeholder="e.g. London, Berlin, Marseille, Porto")
+    st.markdown(
+        "<div style='font-size:20px; font-weight:bold; margin-bottom:0px;'>Select Your City</div>",
+        unsafe_allow_html=True
+    )
+    city = st.selectbox(
+        "",
+        options=[c.title() for c in city_coords.keys()],
+        index=None,
+        placeholder="Choose a city..."
+    )
 
-    st.markdown("##### Describe Your Occasion (Optional)")
+    st.markdown(
+        "<div style='font-size:20px; font-weight:bold; margin-bottom:0px;'>Describe Your Occasion (optional)</div>",
+        unsafe_allow_html=True
+    )
     user_context = st.text_area(
         "",
         placeholder="e.g. I’ve got a party tonight but don’t know how to dress for the weather.",
         height=100
     )
 
-# --- Button: fetch weather and recommendations ---
+# Button: fetch weather and recommendations
 if st.button("✨ Get My Outfit"):
     if not city:
-        st.warning("⚠️ Please enter a city name.")
+        st.warning("⚠️ Please select a city.")
     else:
         with st.spinner("Fetching your personalized outfit..."):
             try:
-                # Call weather API
-                weather_response = requests.get(WEATHER_API, params={"city": city})
+                city_lower = city.lower()
+
+                #  Weather API call
+                weather_response = requests.get(WEATHER_API, params={"city": city_lower})
                 if weather_response.status_code != 200:
                     st.error("Could not fetch weather data. Please try again.")
                 else:
@@ -97,73 +107,34 @@ if st.button("✨ Get My Outfit"):
                     st.session_state.temperature = weather_data.get("temperature", "N/A")
                     st.session_state.weather_label = weather_data.get("label", "Unknown")
 
-                # Call recommendation API
-                rec_response = requests.get(RECOMMEND_API, params={"city": city})
+                # Recommendation API call
+                rec_response = requests.get(RECOMMEND_API, params={"city": city_lower})
                 if rec_response.status_code == 200:
                     st.session_state.recommendations = rec_response.json().get("recommendations", [])
                 else:
                     st.session_state.recommendations = []
 
-                # Store coordinates
-                st.session_state.coords = city_coords.get(city.lower(), {"lat":0,"lon":0})
+                # 12-Hour Forecast API call
+                hourly_response = requests.get(HOURLY_API, params={"city": city_lower})
+                if hourly_response.status_code == 200:
+                    st.session_state.hourly_data = hourly_response.json()["hourly"]
+                else:
+                    st.session_state.hourly_data = []
+
+                # Coordinates
+                st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
 
             except Exception as e:
                 st.error(f"🚨 Something went wrong: {e}")
 
-# --- Display weather cards if data exists ---
+# Weather cards
 if st.session_state.weather_data:
     temperature = st.session_state.temperature
     weather_label = st.session_state.weather_label
+    coords = st.session_state.coords
 
     st.markdown("---")
-    st.markdown(
-        f"""
-        <div class="section-title">
-            <h3 style="text-align:left; color:#222; margin:0;">Weather in {city.title()}</h3>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-
-    cols = st.columns(4, gap="small")
-    with cols[0]:
-        st.markdown(f"""
-            <div class="card">
-                <div class="icon">☀️</div>
-                <div class="metric">{temperature}°C</div>
-                <div class="label">Temperature</div>
-            </div>
-        """, unsafe_allow_html=True)
-    with cols[1]:
-        st.markdown(f"""
-            <div class="card">
-                <div class="icon">💨</div>
-                <div class="metric">7 km/h</div>
-                <div class="label">Wind</div>
-            </div>
-        """, unsafe_allow_html=True)
-    with cols[2]:
-        st.markdown(f"""
-            <div class="card">
-                <div class="icon">💧</div>
-                <div class="metric">75%</div>
-                <div class="label">Humidity</div>
-            </div>
-        """, unsafe_allow_html=True)
-    with cols[3]:
-        st.markdown(f"""
-            <div class="card">
-                <div class="icon">🌧️</div>
-                <div class="metric">80%</div>
-                <div class="label">Precipitation</div>
-            </div>
-        """, unsafe_allow_html=True)
-
-# --- Map Section ---
-if st.session_state.coords:
-    coords = st.session_state.coords
-    temperature = st.session_state.temperature
-    weather_label = st.session_state.weather_label
+    st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
 
     # Determine pin color
     if temperature < 15:
@@ -173,7 +144,7 @@ if st.session_state.coords:
     else:
         pin_color = "orange"
 
-    # Zoomed-in map
+    # Folium map
     m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
     folium.Marker(
         location=[coords["lat"], coords["lon"]],
@@ -181,26 +152,94 @@ if st.session_state.coords:
         icon=folium.Icon(color=pin_color, icon="cloud")
     ).add_to(m)
 
-    st.markdown(
-        f"""
-        <div class="section-title">
-            <h3 style="text-align:left; color:#222; margin:0;">City Map</h3>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    st_folium(m, width=700, height=400)
+    # Cards and Map columns
+    cols = st.columns([4, 3])
 
-# --- Recommended Outfit Section ---
+    with cols[0]:
+        # All cards in a row
+        st.markdown(
+            """
+            <div style="display:flex; gap:10px; flex-wrap:nowrap;">
+                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                    <div style="font-size:24px;">🌡️</div>
+                    <div style="font-weight:bold; margin-top:10px;">{}°C</div>
+                    <div style="color:gray;font-size:9px;">Temperature</div>
+                </div>
+                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                    <div style="font-size:24px;">💨</div>
+                    <div style="font-weight:bold; margin-top:10px;">7 km/h</div>
+                    <div style="color:gray;font-size:9px;">Wind</div>
+                </div>
+                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                    <div style="font-size:24px;">💧</div>
+                    <div style="font-weight:bold; margin-top:10px;">75%</div>
+                    <div style="color:gray;font-size:9px;">Humidity</div>
+                </div>
+                <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
+                    <div style="font-size:24px;">🌧️</div>
+                    <div style="font-weight:bold; margin-top:10px;">80%</div>
+                    <div style="color:gray;font-size:9px;">Precipitation</div>
+                </div>
+            </div>
+            """.format(temperature),
+            unsafe_allow_html=True,
+        )
+
+    with cols[1]:
+        st_folium(m, width=300, height=150)
+
+
+# 12-Hour Forecast with parameter selector
+if st.session_state.hourly_data:
+    df = pd.DataFrame(st.session_state.hourly_data)
+
+    params = {
+        "temperature": "°C",
+        "humidity": "%",
+        "precipitation": "%",
+        "wind": "km/h"
+    }
+
+    # group title + dropdown
+    with st.container():
+        st.markdown(
+            "<h5 style='text-align:left; color:#222; margin-bottom:5px;'>12-Hour Forecast</h5>",
+            unsafe_allow_html=True
+        )
+        selected_param = st.selectbox(
+            "",
+            options=list(params.keys()),
+            format_func=lambda x: x.title(),
+            label_visibility="collapsed"
+        )
+
+    # min and max for the selected parameter
+    y_min = df[selected_param].min() - 2
+    y_max = df[selected_param].max() + 2
+
+    chart = alt.Chart(df).mark_line(point=True, color="#1f77b4").encode(
+        x=alt.X('hour', title='Hour'),
+        y=alt.Y(
+            f'{selected_param}',
+            title=f'{selected_param.title()} ({params[selected_param]})',
+            scale=alt.Scale(domain=[y_min, y_max])
+        ),
+        tooltip=[
+            alt.Tooltip('hour', title='Hour'),
+            alt.Tooltip(selected_param, title=f'{selected_param.title()} ({params[selected_param]})')
+        ]
+    ).properties(
+        width=700,
+        height=200
+    ).interactive()
+
+    st.altair_chart(chart)
+
+
+# Recommended Outfit Section
 if st.session_state.recommendations:
-    st.markdown(
-        f"""
-        <div class="section-title">
-            <h3 style="text-align:left; color:#222; margin:0;">Recommended Outfit</h3>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
+
+    st.markdown("<h3 style='text-align:left; color:#222;'>Recommended Outfit</h3>", unsafe_allow_html=True)
 
     cols = st.columns(len(st.session_state.recommendations))
     for i, item in enumerate(st.session_state.recommendations):
@@ -216,15 +255,14 @@ if st.session_state.recommendations:
                     <img src="https://placehold.co/100x100?text={item}"
                          alt="{item}" style="border-radius:8px;">
                     <p style="font-size:16px; margin-top:10px;"><b>{item}</b></p>
+                    <p style="font-size:12px; color:gray; margin-top:5px;">Bottoms</p>
                 </div>
             """, unsafe_allow_html=True)
-    st.markdown("<br>", unsafe_allow_html=True)
 
-    # --- Refresh Recommendations Button ---
     if st.button("🔄 Refresh Recommendations"):
         with st.spinner("Refreshing outfit ideas..."):
             try:
-                rec_response = requests.get(RECOMMEND_API, params={"city": city})
+                rec_response = requests.get(RECOMMEND_API, params={"city": city.lower()})
                 if rec_response.status_code == 200:
                     refreshed = rec_response.json().get("recommendations", [])
                     st.session_state.recommendations = refreshed
