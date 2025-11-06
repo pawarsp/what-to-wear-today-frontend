@@ -201,7 +201,7 @@ if st.session_state.data_loaded and st.session_state.city:
         pin_color = "orange"
     # Folium map
     if coords:
-        m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
+        m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12,tiles='CartoDB positron')
         folium.Marker(
             location=[coords["lat"], coords["lon"]],
             popup=f"{city.title()}",
@@ -358,6 +358,3 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-
-
-        
