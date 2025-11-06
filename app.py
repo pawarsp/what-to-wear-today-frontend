@@ -7,8 +7,8 @@ import altair as alt
 import numpy as np
 
 st.set_page_config(
-    page_title="What to Wear Today :shirt:", 
-    page_icon=":coat:", 
+    page_title="What to Wear Today",
+    page_icon="👕",
     layout="centered"
     )
 
@@ -65,16 +65,66 @@ for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_mi
            'temperature_max', 'recommended_clothes', 'time', 'recommendations']:
     if key not in st.session_state:
         st.session_state[key] = None
-# Main Title
+
 st.markdown(
     """
-    <h1 style="text-align:center;">:shirt: What to Wear Today</h1>
-    <p style="text-align:center; color:gray; font-size:18px;">
-        Your smart weather-based clothing recommender
-    </p>
+    <style>
+    .hero {
+        background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
+        border-radius: 20px;
+        padding: 50px 30px;
+        text-align: center;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+    }
+    .hero-logo {
+        width: 100px;
+        height: 100px;
+        object-fit: contain;
+        border-radius: 20%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        margin-bottom: 20px;
+        animation: float 3s ease-in-out infinite;
+        background-color: rgba(255,255,255,0.6);
+        backdrop-filter: blur(5px);
+        padding: 10px;
+    }
+    .hero h1 {
+        font-size: 52px;
+        color: #1E1E1E;
+        font-weight: 800;
+        margin-bottom: 10px;
+        letter-spacing: -0.5px;
+    }
+    .tagline {
+        display: inline-block;
+        padding: 6px 16px;
+        background: rgba(255,255,255,0.7);
+        border-radius: 50px;
+        backdrop-filter: blur(6px);
+        font-size: 16px;
+        color: #333;
+        margin-top: 14px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    @keyframes float {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-8px); }
+        100% { transform: translateY(0px); }
+    }
+    </style>
+
+    <div class="hero">
+        <img src="logo.png" class="hero-logo" alt="App logo">
+        <h1></h1>
+        <div class="tagline">Your smart weather-based clothing recommender</div>
+    </div>
     """,
     unsafe_allow_html=True
 )
+
+
+
 # --- City & Occasion Input ---
 with st.container():
     st.markdown(
@@ -112,9 +162,9 @@ if st.button(":sparkles: Get My Outfit", key="get_outfit_btn"):
                     st.session_state.city = city
                     st.session_state.data_loaded = True
                 else:
-                    st.error(f":rotating_light: API returned status code: {all_response.status_code}")
+                    st.error(f"🚨 API returned status code: {all_response.status_code}")
             except Exception as e:
-                st.error(f":rotating_light: Something went wrong: {e}")
+                st.error(f"🚨 Something went wrong: {e}")
 
 # Only display weather data if we have loaded data
 if st.session_state.data_loaded and st.session_state.city:
@@ -152,22 +202,22 @@ if st.session_state.data_loaded and st.session_state.city:
         st.markdown(f"""
         <div style="display:flex; justify-content:center; gap:20px; width:100%; margin:20px 0;">
             <div class="card" style="flex:0 1 180px; text-align:center;">
-                <div style="font-size:28px;">:thermometer:</div>
+                <div style="font-size:28px;">🌡️</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{temp_display}</div>
                 <div style="color:gray;font-size:16px;">Temperature</div>
             </div>
             <div class="card" style="flex:0 1 180px; text-align:center;">
-                <div style="font-size:28px;">:dash:</div>
+                <div style="font-size:28px;">💨</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{wind_display}</div>
                 <div style="color:gray;font-size:16px;">Wind</div>
             </div>
             <div class="card" style="flex:0 1 180px; text-align:center;">
-                <div style="font-size:28px;">:droplet:</div>
+                <div style="font-size:28px;">💧</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{humidity_display}</div>
                 <div style="color:gray;font-size:16px;">Humidity</div>
             </div>
             <div class="card" style="flex:0 1 180px; text-align:center;">
-                <div style="font-size:28px;">:rain_cloud:</div>
+                <div style="font-size:28px;">🌧️</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{rain_display}</div>
                 <div style="color:gray;font-size:16px;">Rain</div>
             </div>
@@ -176,9 +226,9 @@ if st.session_state.data_loaded and st.session_state.city:
         # Map
         if coords:
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
-            st.markdown("#### :round_pushpin: Location")
+            st.markdown("#### 📍 Location")
             st_folium(m, use_container_width=True, height=200)
-            
+
 # 12-Hour Forecast with parameter selector
 if st.session_state.time:
     # Combine time and temperature lists into a DataFrame
@@ -230,7 +280,7 @@ if st.session_state.recommendations:
 # --- Refresh Recommendations Button  ---
 if st.session_state.recommendations:
     st.markdown("<hr style='margin-top:20px; margin-bottom:10px;'>", unsafe_allow_html=True)
-    if st.button(":arrows_counterclockwise: Refresh Recommendations", key="refresh_btn"):
+    if st.button("🔄 Refresh Recommendations", key="refresh_btn"):
         if not st.session_state.city:
             st.warning("Please select a city first.")
         else:
