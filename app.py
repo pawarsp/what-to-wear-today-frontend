@@ -5,6 +5,9 @@ from streamlit_folium import st_folium
 import pandas as pd
 import altair as alt
 import numpy as np
+import base64
+from PIL import Image
+import io
 
 st.set_page_config(
     page_title="What to Wear Today",
@@ -12,46 +15,66 @@ st.set_page_config(
     layout="centered"
     )
 
-st.query_params.theme = "light"
-
-# CSS
+logo = Image.open("WhatToWearToday_White.png")
 st.markdown(
     """
     <style>
-    .stApp {
-        background-color: white;
+    .hero {
+        background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
+        border-radius: 20px;
+        padding: 50px 30px;
+        text-align: center;
+        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+        margin-bottom: 40px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    """
-    <style>
-    .card {
-        background-color: #F0F2F6;
-        padding: 20px;
-        border-radius: 15px;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    .hero-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        max-width: 800px;
+        margin: 0 auto;
         text-align: center;
     }
-    .card .icon {
-        font-size: 24px;
+    .centered-image {
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
-    .card .metric {
-        font-size: 20px;
-        font-weight: bold;
-        margin: 5px 0;
-    }
-    .card .label {
-        font-size: 16px;
-        color: gray;
+    /* Hide the default Streamlit page title */
+    .stApp header {
+        display: none;
     }
     </style>
+    
+    <div class="hero">
+        <div class="hero-content">
     """,
     unsafe_allow_html=True
 )
+
+# Content inside the centered container
+st.markdown('<div class="centered-image">', unsafe_allow_html=True)
+st.image(logo, width=500, output_format="PNG")
+st.markdown('</div>', unsafe_allow_html=True)
+
+st.markdown(
+    '<h1 style="font-size: 52px; color: #1E1E1E; font-weight: 800; margin: 20px 0 10px 0; text-align: center;">What to Wear Today</h1>',
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    '<div style="display: inline-block; padding: 8px 20px; background: rgba(255,255,255,0.7); border-radius: 50px; font-size: 18px; color: #333; margin-top: 10px; text-align: center;">'
+    'Your smart weather-based clothing recommender'
+    '</div>',
+    unsafe_allow_html=True
+)
+
+st.markdown('</div></div>', unsafe_allow_html=True)
 # Initialize session state
 if 'data_loaded' not in st.session_state:
     st.session_state.data_loaded = False
@@ -79,62 +102,62 @@ for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_mi
     if key not in st.session_state:
         st.session_state[key] = None
 
-st.markdown(
-    """
-    <style>
-    .hero {
-        background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
-        border-radius: 20px;
-        padding: 50px 30px;
-        text-align: center;
-        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-        margin-bottom: 40px;
-    }
-    .hero-logo {
-        width: 100px;
-        height: 100px;
-        object-fit: contain;
-        border-radius: 20%;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        animation: float 3s ease-in-out infinite;
-        background-color: rgba(255,255,255,0.6);
-        backdrop-filter: blur(5px);
-        padding: 10px;
-    }
-    .hero h1 {
-        font-size: 52px;
-        color: #1E1E1E;
-        font-weight: 800;
-        margin-bottom: 10px;
-        letter-spacing: -0.5px;
-    }
-    .tagline {
-        display: inline-block;
-        padding: 6px 16px;
-        background: rgba(255,255,255,0.7);
-        border-radius: 50px;
-        backdrop-filter: blur(6px);
-        font-size: 16px;
-        color: #333;
-        margin-top: 14px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    }
-    @keyframes float {
-        0% { transform: translateY(0px); }
-        50% { transform: translateY(-8px); }
-        100% { transform: translateY(0px); }
-    }
-    </style>
+# st.image(logo, width=500, output_format="PNG")
 
-    <div class="hero">
-        <img src="logo.png" class="hero-logo" alt="App logo">
-        <h1></h1>
-        <div class="tagline">Your smart weather-based clothing recommender</div>
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <style>
+#     .hero {
+#         background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
+#         border-radius: 20px;
+#         padding: 50px 30px;
+#         text-align: center;
+#         box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+#         margin-bottom: 40px;
+#     }
+#     .hero-logo {
+#         width: 100px;
+#         height: 100px;
+#         object-fit: contain;
+#         border-radius: 20%;
+#         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+#         margin-bottom: 20px;
+#         animation: float 3s ease-in-out infinite;
+#         background-color: rgba(255,255,255,0.6);
+#         backdrop-filter: blur(5px);
+#         padding: 10px;
+#     }
+#     .hero h1 {
+#         font-size: 52px;
+#         color: #1E1E1E;
+#         font-weight: 800;
+#         margin-bottom: 10px;
+#         letter-spacing: -0.5px;
+#     }
+#     .tagline {
+#         display: inline-block;
+#         padding: 6px 16px;
+#         background: rgba(255,255,255,0.7);
+#         border-radius: 50px;
+#         backdrop-filter: blur(6px);
+#         font-size: 16px;
+#         color: #333;
+#         margin-top: 14px;
+#         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+#     }
+#     @keyframes float {
+#         0% { transform: translateY(0px); }
+#         50% { transform: translateY(-8px); }
+#         100% { transform: translateY(0px); }
+#     }
+#     </style>
+
+#     <div class="hero">
+#         <div class="tagline">Your smart weather-based clothing recommender</div>
+#     </div>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 
 
