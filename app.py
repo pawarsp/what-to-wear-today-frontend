@@ -15,26 +15,26 @@ st.set_page_config(
     layout="centered"
     )
 
-logo = Image.open("WhatToWearToday_White.png")
+logo = Image.open("WhatToWearToday_White_new.png")
 
-st.markdown(
-    """
-    <style>
-    .hero {
-        background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
-        border-radius: 20px;
-        padding: 50px 30px;
-        box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-        margin-bottom: 40px;
-    }
-    /* Hide the default Streamlit page title */
-    .stApp header {
-        display: none;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+# st.markdown(
+#     """
+#     <style>
+#     .hero {
+#         background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
+#         border-radius: 20px;
+#         padding: 50px 30px;
+#         box-shadow: 0 6px 25px rgba(0,0,0,0.08);
+#         margin-bottom: 40px;
+#     }
+#     /* Hide the default Streamlit page title */
+#     .stApp header {
+#         display: none;
+#     }
+#     </style>
+#     """,
+#     unsafe_allow_html=True
+# )
 
 # Create the hero container
 st.markdown('<div class="hero">', unsafe_allow_html=True)
@@ -45,22 +45,6 @@ left_col, center_col, right_col = st.columns([1, 2, 1])
 with center_col:
     # Logo
     st.image(logo, width=500, output_format="PNG")
-    
-    # Title
-    # st.markdown(
-    #     '<h1 style="font-size: 52px; color: #1E1E1E; font-weight: 800; margin: 20px 0 10px 0; text-align: center;">What to Wear Today</h1>',
-    #     unsafe_allow_html=True
-    # )
-    
-    # Tagline
-    st.markdown(
-        '<div style="text-align: center;">'
-        '<div style="display: inline-block; padding: 8px 20px; background: rgba(255,255,255,0.7); border-radius: 50px; font-size: 18px; color: #333; margin-top: 10px;">'
-        'Your smart weather-based clothing recommender'
-        '</div>'
-        '</div>',
-        unsafe_allow_html=True
-    )
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -90,65 +74,6 @@ for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_mi
            'temperature_max', 'recommended_clothes', 'time', 'recommendations']:
     if key not in st.session_state:
         st.session_state[key] = None
-
-# st.image(logo, width=500, output_format="PNG")
-
-# st.markdown(
-#     """
-#     <style>
-#     .hero {
-#         background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
-#         border-radius: 20px;
-#         padding: 50px 30px;
-#         text-align: center;
-#         box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-#         margin-bottom: 40px;
-#     }
-#     .hero-logo {
-#         width: 100px;
-#         height: 100px;
-#         object-fit: contain;
-#         border-radius: 20%;
-#         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-#         margin-bottom: 20px;
-#         animation: float 3s ease-in-out infinite;
-#         background-color: rgba(255,255,255,0.6);
-#         backdrop-filter: blur(5px);
-#         padding: 10px;
-#     }
-#     .hero h1 {
-#         font-size: 52px;
-#         color: #1E1E1E;
-#         font-weight: 800;
-#         margin-bottom: 10px;
-#         letter-spacing: -0.5px;
-#     }
-#     .tagline {
-#         display: inline-block;
-#         padding: 6px 16px;
-#         background: rgba(255,255,255,0.7);
-#         border-radius: 50px;
-#         backdrop-filter: blur(6px);
-#         font-size: 16px;
-#         color: #333;
-#         margin-top: 14px;
-#         box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-#     }
-#     @keyframes float {
-#         0% { transform: translateY(0px); }
-#         50% { transform: translateY(-8px); }
-#         100% { transform: translateY(0px); }
-#     }
-#     </style>
-
-#     <div class="hero">
-#         <div class="tagline">Your smart weather-based clothing recommender</div>
-#     </div>
-#     """,
-#     unsafe_allow_html=True
-# )
-
-
 
 # --- City & Occasion Input ---
 with st.container():
@@ -213,7 +138,7 @@ if st.session_state.data_loaded and st.session_state.city:
         pin_color = "orange"
     # Folium map
     if coords:
-        m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12)
+        m = folium.Map(location=[coords["lat"], coords["lon"]], zoom_start=12,tiles='CartoDB positron')
         folium.Marker(
             location=[coords["lat"], coords["lon"]],
             popup=f"{city.title()}",
