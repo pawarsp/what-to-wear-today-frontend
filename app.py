@@ -12,7 +12,20 @@ st.set_page_config(
     layout="centered"
     )
 
+st.query_params.theme = "light"
+
 # CSS
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 st.markdown(
     """
     <style>
