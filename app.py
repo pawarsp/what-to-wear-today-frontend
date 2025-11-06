@@ -17,24 +17,16 @@ st.set_page_config(
 
 logo = Image.open("WhatToWearToday_White_new.png")
 
-# st.markdown(
-#     """
-#     <style>
-#     .hero {
-#         background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
-#         border-radius: 20px;
-#         padding: 50px 30px;
-#         box-shadow: 0 6px 25px rgba(0,0,0,0.08);
-#         margin-bottom: 40px;
-#     }
-#     /* Hide the default Streamlit page title */
-#     .stApp header {
-#         display: none;
-#     }
-#     </style>
-#     """,
-#     unsafe_allow_html=True
-# )
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-color: white;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Create the hero container
 st.markdown('<div class="hero">', unsafe_allow_html=True)
