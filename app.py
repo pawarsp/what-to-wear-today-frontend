@@ -16,6 +16,7 @@ st.set_page_config(
     )
 
 logo = Image.open("WhatToWearToday_White.png")
+
 st.markdown(
     """
     <style>
@@ -23,58 +24,46 @@ st.markdown(
         background: linear-gradient(135deg, #A2D2FF 0%, #EAF4F4 100%);
         border-radius: 20px;
         padding: 50px 30px;
-        text-align: center;
         box-shadow: 0 6px 25px rgba(0,0,0,0.08);
         margin-bottom: 40px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-    .hero-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        max-width: 800px;
-        margin: 0 auto;
-        text-align: center;
-    }
-    .centered-image {
-        display: flex;
-        justify-content: center;
-        width: 100%;
     }
     /* Hide the default Streamlit page title */
     .stApp header {
         display: none;
     }
     </style>
-    
-    <div class="hero">
-        <div class="hero-content">
     """,
     unsafe_allow_html=True
 )
 
-# Content inside the centered container
-st.markdown('<div class="centered-image">', unsafe_allow_html=True)
-st.image(logo, width=500, output_format="PNG")
+# Create the hero container
+st.markdown('<div class="hero">', unsafe_allow_html=True)
+
+# Use columns to center everything
+left_col, center_col, right_col = st.columns([1, 2, 1])
+
+with center_col:
+    # Logo
+    st.image(logo, width=500, output_format="PNG")
+    
+    # Title
+    # st.markdown(
+    #     '<h1 style="font-size: 52px; color: #1E1E1E; font-weight: 800; margin: 20px 0 10px 0; text-align: center;">What to Wear Today</h1>',
+    #     unsafe_allow_html=True
+    # )
+    
+    # Tagline
+    st.markdown(
+        '<div style="text-align: center;">'
+        '<div style="display: inline-block; padding: 8px 20px; background: rgba(255,255,255,0.7); border-radius: 50px; font-size: 18px; color: #333; margin-top: 10px;">'
+        'Your smart weather-based clothing recommender'
+        '</div>'
+        '</div>',
+        unsafe_allow_html=True
+    )
+
 st.markdown('</div>', unsafe_allow_html=True)
 
-st.markdown(
-    '<h1 style="font-size: 52px; color: #1E1E1E; font-weight: 800; margin: 20px 0 10px 0; text-align: center;">What to Wear Today</h1>',
-    unsafe_allow_html=True
-)
-
-st.markdown(
-    '<div style="display: inline-block; padding: 8px 20px; background: rgba(255,255,255,0.7); border-radius: 50px; font-size: 18px; color: #333; margin-top: 10px; text-align: center;">'
-    'Your smart weather-based clothing recommender'
-    '</div>',
-    unsafe_allow_html=True
-)
-
-st.markdown('</div></div>', unsafe_allow_html=True)
 # Initialize session state
 if 'data_loaded' not in st.session_state:
     st.session_state.data_loaded = False
