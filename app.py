@@ -299,3 +299,52 @@ if st.session_state.recommendations:
                         st.error(f"API returned status code: {rec_response.status_code}")
                 except Exception as e:
                     st.error(f"Error refreshing recommendations: {e}")
+
+# Credits section
+st.markdown("<br><br><br>", unsafe_allow_html=True)  # ajoute de l'espace pour descendre le bloc
+
+st.markdown(
+    """
+    <div style='text-align: center; font-size: 14px; color: #555555;'>
+        <p>👥 This project was developed by:</p>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
+st.markdown(
+    """
+    <div style='display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;'>
+
+      <a href="https://github.com/pawarsp" target="_blank">
+        <img src="https://github.com/pawarsp.png" width="80" style="border-radius: 50%;"><br>
+      </a>
+
+      <a href="https://github.com/stfnlxndrslg" target="_blank">
+        <img src="https://github.com/stfnlxndrslg.png" width="80" style="border-radius: 50%;"><br>
+      </a>
+
+      <a href="https://github.com/xicaseixas" target="_blank">
+        <img src="https://github.com/xicaseixas.png" width="80" style="border-radius: 50%;"><br>
+      </a>
+
+      <a href="https://github.com/benjaminSimeoni" target="_blank">
+        <img src="https://github.com/benjaminSimeoni.png" width="80" style="border-radius: 50%;"><br>
+      </a>
+
+      <a href="https://github.com/klaire03" target="_blank">
+        <img src="https://github.com/klaire03.png" width="80" style="border-radius: 50%;"><br>
+      </a>
+
+    </div>
+
+    <br>
+    <p style='text-align: center;'>
+    🔗 <a href="https://github.com/pawarsp/what-to-wear-today" target="_blank">View backend repository on GitHub</a>
+    </p>
+    """,
+    unsafe_allow_html=True
+)
+
+
+        
