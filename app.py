@@ -5,7 +5,13 @@ from streamlit_folium import st_folium
 import pandas as pd
 import altair as alt
 import numpy as np
-st.set_page_config(page_title="What to Wear Today :shirt:", page_icon=":coat:", layout="centered")
+
+st.set_page_config(
+    page_title="What to Wear Today :shirt:", 
+    page_icon=":coat:", 
+    layout="centered"
+    )
+
 # CSS
 st.markdown(
     """
@@ -81,6 +87,7 @@ with st.container():
         label_visibility="collapsed",
         key="city_select"
     )
+
 # Button: fetch weather and recommendations
 if st.button(":sparkles: Get My Outfit", key="get_outfit_btn"):
     if not city:
@@ -93,7 +100,6 @@ if st.button(":sparkles: Get My Outfit", key="get_outfit_btn"):
                 print(f"API Response Status: {all_response.status_code}")
                 if all_response.status_code == 200:
                     data = all_response.json()
-                    #print(data)
                     st.session_state.temperature = data.get("temperature", [])
                     st.session_state.temperature_min = data.get("temperature_min", [])
                     st.session_state.temperature_max = data.get("temperature_max", [])
@@ -109,6 +115,7 @@ if st.button(":sparkles: Get My Outfit", key="get_outfit_btn"):
                     st.error(f":rotating_light: API returned status code: {all_response.status_code}")
             except Exception as e:
                 st.error(f":rotating_light: Something went wrong: {e}")
+
 # Only display weather data if we have loaded data
 if st.session_state.data_loaded and st.session_state.city:
     temperature = st.session_state.temperature
@@ -119,6 +126,7 @@ if st.session_state.data_loaded and st.session_state.city:
     humidity = st.session_state.humidity
     coords = st.session_state.coords
     city = st.session_state.city
+    time = st.session_state.time
     st.markdown("---")
     st.markdown(f"<h3>Weather in {city.title()}</h3>", unsafe_allow_html=True)
     # Determine pin color
@@ -170,17 +178,19 @@ if st.session_state.data_loaded and st.session_state.city:
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
             st.markdown("#### :round_pushpin: Location")
             st_folium(m, use_container_width=True, height=200)
-    # 12-Hour Forecast with parameter selector
+            
+# 12-Hour Forecast with parameter selector
 if st.session_state.time:
     # Combine time and temperature lists into a DataFrame
     df = pd.DataFrame({
-        "hour": st.session_state.time,
-        "temperature": st.session_state.temperature
+        "hour": time,
+        "temperature": temperature
     })
-    y_min = df["temperature"].min() - 2
-    y_max = df["temperature"].max() + 2
+
+    y_min = st.session_state.temperature_min - 2
+    y_max = st.session_state.temperature_max + 2
     chart = alt.Chart(df).mark_line(point=True, color="#1F77B4").encode(
-        x=alt.X('hour', title='Hour'),
+        x=alt.X('hour:N', title='Hour', sort=df['hour'].tolist()),
         y=alt.Y('temperature', title='Temperature (°C)', scale=alt.Scale(domain=[y_min, y_max])),
         tooltip=[
             alt.Tooltip('hour', title='Hour'),
@@ -192,6 +202,7 @@ if st.session_state.time:
     ).interactive()
     st.markdown("<h5 style='text-align:left; color:#222; margin-bottom:5px;'>12-Hour Temperature Forecast</h5>", unsafe_allow_html=True)
     st.altair_chart(chart)
+
 # Recommended Outfit Section
 if st.session_state.recommendations:
     st.markdown("<h3 style='text-align:left; color:#222;'>Recommended Outfit</h3>", unsafe_allow_html=True)
@@ -215,6 +226,7 @@ if st.session_state.recommendations:
                     <p style="font-size:12px; color:gray; margin:0;">{category.title()}</p>
                 </div>
             """, unsafe_allow_html=True)
+
 # --- Refresh Recommendations Button  ---
 if st.session_state.recommendations:
     st.markdown("<hr style='margin-top:20px; margin-bottom:10px;'>", unsafe_allow_html=True)
