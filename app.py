@@ -1,3 +1,4 @@
+
 import streamlit as st
 import requests
 import folium
@@ -62,7 +63,7 @@ city_coords = {
 }
 
 # Initialize session state variables
-for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_min', 
+for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_min',
            'temperature_max', 'recommended_clothes', 'time', 'recommendations']:
     if key not in st.session_state:
         st.session_state[key] = None
@@ -109,13 +110,14 @@ if st.button("✨ Get My Outfit", key="get_outfit_btn"):
         st.warning("⚠️ Please select a city.")
     else:
         with st.spinner("Fetching your personalized outfit..."):
-            try:               
+            try:
                 city_lower = city.lower()
                 all_response = requests.get(WWTT_API, params={'city': city_lower})
                 print(f"API Response Status: {all_response.status_code}")
-                
+
                 if all_response.status_code == 200:
                     data = all_response.json()
+                    print(data)
                     st.session_state.temperature = data.get("temperature", [])
                     st.session_state.temperature_min = data.get("temperature_min", [])
                     st.session_state.temperature_max = data.get("temperature_max", [])
@@ -127,8 +129,8 @@ if st.button("✨ Get My Outfit", key="get_outfit_btn"):
                     st.session_state.coords = city_coords.get(city_lower, {"lat":0,"lon":0})
                     st.session_state.city = city
                     st.session_state.data_loaded = True
-                    
-                    st.success("✅ Data loaded successfully!")
+
+
                 else:
                     st.error(f"🚨 API returned status code: {all_response.status_code}")
 
@@ -175,7 +177,7 @@ if st.session_state.data_loaded and st.session_state.city:
         wind_display = f"{np.mean(wind):.2f} km/h" if wind else "N/A"
         humidity_display = f"{np.mean(humidity):.2f}%" if humidity else "N/A"
         rain_display = f"{np.mean(rain):.2f}%" if rain else "N/A"
-        
+
         st.markdown(f"""
         <div style="display:flex; gap:10px; flex-wrap:nowrap;">
             <div class="card" style="flex:1; min-width:80px; height:150px; text-align:center;">
@@ -276,7 +278,7 @@ if st.session_state.data_loaded and st.session_state.city:
 
     # Clear data button
     if st.button("🗑️ Clear Data", key="clear_btn"):
-        for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_min', 
+        for key in ['coords', 'temperature', 'rain', 'humidity', 'wind', 'temperature_min',
                    'temperature_max', 'recommended_clothes', 'time', 'recommendations']:
             st.session_state[key] = None
         st.session_state.data_loaded = False
