@@ -143,28 +143,29 @@ if st.session_state.data_loaded and st.session_state.city:
         rain_display = f"{np.mean(rain):.1f} mm" if rain else "N/A"
         st.markdown(f"""
         <div style="display:flex; justify-content:center; gap:20px; width:100%; margin:20px 0;">
-            <div class="card" style="flex:0 1 180px; text-align:center;">
+            <div class="card" style="flex:0 1 180px; text-align:center; background-color:#f5f5f5; border-radius:12px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
                 <div style="font-size:28px;">🌡️</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{temp_display}</div>
                 <div style="color:gray;font-size:16px;">Temperature</div>
             </div>
-            <div class="card" style="flex:0 1 180px; text-align:center;">
+            <div class="card" style="flex:0 1 180px; text-align:center; background-color:#f5f5f5; border-radius:12px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
                 <div style="font-size:28px;">💨</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{wind_display}</div>
                 <div style="color:gray;font-size:16px;">Wind</div>
             </div>
-            <div class="card" style="flex:0 1 180px; text-align:center;">
+            <div class="card" style="flex:0 1 180px; text-align:center; background-color:#f5f5f5; border-radius:12px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
                 <div style="font-size:28px;">💧</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{humidity_display}</div>
                 <div style="color:gray;font-size:16px;">Humidity</div>
             </div>
-            <div class="card" style="flex:0 1 180px; text-align:center;">
+            <div class="card" style="flex:0 1 180px; text-align:center; background-color:#f5f5f5; border-radius:12px; padding:15px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
                 <div style="font-size:28px;">🌧️</div>
                 <div style="font-weight:bold; margin-top:10px; font-size:20px;">{rain_display}</div>
                 <div style="color:gray;font-size:16px;">Rain</div>
             </div>
         </div>
         """, unsafe_allow_html=True)
+
         # Map
         if coords:
             st.markdown("<hr style='margin:20px 0;'>", unsafe_allow_html=True)
